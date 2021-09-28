@@ -1,1 +1,31 @@
-<app-server></app-server> <app-server></app-server>
+<button
+  class="btn btn-primary"
+  [disabled]="!allowNewServer"
+  (click)="onServerCreation()"
+>
+  Add server
+</button>
+<hr />
+<h4>Value is displaying by property binding</h4>
+<p [innerText]="allowNewServer"></p>
+<hr />
+<h4>Value is displaying by String Interploation</h4>
+<p>{{ allowNewServer }}</p>
+
+<hr />
+<h4>Value is changing by event listener</h4>
+<p>{{ serverCreationStatus }}</p>
+<hr />
+<label>Server Name : </label>
+<input type="text" class="form-control" (input)="onServerNameUpdate($event)" />
+<p>
+  Value below is populating from the text input event triggered by above text
+  input
+</p>
+<p>{{ serverName }}</p>
+<p>Value below is getting displayed by using ngIf directive</p>
+<p *ngIf="serverCreatedStatus">{{ serverName }}</p>
+<hr />
+<h4>Below are custom Components</h4>
+<app-server></app-server>
+<app-server></app-server>
