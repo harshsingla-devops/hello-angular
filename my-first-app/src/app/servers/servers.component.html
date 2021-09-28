@@ -23,6 +23,8 @@
   input
 </p>
 <p>{{ serverName }}</p>
+<p>Value below is getting displayed by using ngIf directive</p>
+<p *ngIf="serverCreatedStatus">{{ serverName }}</p>
 <hr />
 <h4>Below are custom Components</h4>
 <app-server></app-server>

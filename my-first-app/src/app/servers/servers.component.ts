@@ -11,9 +11,12 @@ export class ServersComponent implements OnInit {
   allowNewServer: boolean = false;
   serverCreationStatus: string = 'No server was created!';
   serverName: string = '';
+  serverCreatedStatus: boolean = false;
 
   onServerCreation(): void {
-    this.serverCreationStatus = 'Server was created!';
+    this.serverCreatedStatus = true;
+    this.serverCreationStatus =
+      'Server was created, and the server name is' + this.serverName;
   }
 
   onServerNameUpdate(event: Event): void {
