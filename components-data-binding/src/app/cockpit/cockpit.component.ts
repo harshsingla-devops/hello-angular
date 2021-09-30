@@ -15,7 +15,7 @@ import {
 export class CockpitComponent implements OnInit {
   //newServerName = '';
   //newServerContent = '';
-  @ViewChild('serverContent') serverContent: ElementRef;
+  @ViewChild('serverContent', { static: true }) serverContent: ElementRef;
 
   @Output() onServerAdd = new EventEmitter<{ name: string; content: string }>();
   @Output('bpCreated') onBluePrintAdd = new EventEmitter<{

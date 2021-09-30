@@ -1,6 +1,6 @@
 <div class="panel panel-default">
   <div class="panel-heading">{{ element.name }}</div>
-  <div class="panel-body">
+  <div class="panel-body" #panelBodyDiv>
     <p>
       <strong *ngIf="element.type === 'server'" style="color: red">{{
         element.content
