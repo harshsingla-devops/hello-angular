@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { Post } from './models/post.model';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +9,7 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  loadedPosts = [];
+  loadedPosts: Post[] = [];
 
   constructor(private http: HttpClient) {}
 
@@ -50,7 +51,7 @@ export class AppComponent implements OnInit {
         })
       )
       .subscribe((posts: any) => {
-        console.log(posts);
+        this.loadedPosts = posts;
       });
   }
 }
