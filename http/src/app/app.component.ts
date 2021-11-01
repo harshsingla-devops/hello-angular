@@ -9,29 +9,43 @@ import { PostsService } from './postsService.service';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  loadedPosts: Post[] = [];
+  loadedPosts = [];
+  error = null;
+  isFetching = false;
 
   constructor(private http: HttpClient, private postsService: PostsService) {}
 
   ngOnInit() {
-    this.postsService.fetchPosts().subscribe((posts) => {
-      this.loadedPosts = posts;
-    });
+    this.onFetchPosts();
   }
 
   onCreatePost(postData: { title: string; content: string }) {
     // Send Http request
-    this.postsService.createPost(postData.title, postData.content);
+    this.postsService
+      .createPost(postData.title, postData.content)
+      .subscribe(() => {
+        this.onFetchPosts();
+      });
   }
 
   onFetchPosts() {
     // Send Http request
-    this.postsService.fetchPosts().subscribe((posts) => {
-      this.loadedPosts = posts;
-    });
+    this.isFetching = true;
+    this.postsService.fetchPosts().subscribe(
+      (posts) => {
+        this.isFetching = false;
+        this.loadedPosts = posts;
+      },
+      (error) => {
+        this.error = error.message;
+      }
+    );
   }
 
   onClearPosts() {
     // Send Http request
+    this.postsService.deletePosts().subscribe(() => {
+      this.loadedPosts = [];
+    });
   }
 }
