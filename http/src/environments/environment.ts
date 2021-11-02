@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   API_END_POINT:
-    'https://angular-project-d720a-default-rtdb.firebaseio.com/posts.json',
+    'http://localhost:3000/api/v1/blogs',
 };
 
 /*
