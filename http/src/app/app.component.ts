@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { Post } from './models/post.model';
+import { PostsService } from './postsService.service';
 
 @Component({
   selector: 'app-root',
@@ -9,48 +10,42 @@ import { map } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit {
   loadedPosts = [];
+  error = null;
+  isFetching = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private postsService: PostsService) {}
 
   ngOnInit() {
-    this.fetchProducts();
+    this.onFetchPosts();
   }
 
   onCreatePost(postData: { title: string; content: string }) {
     // Send Http request
-    this.http
-      .post('http://localhost:3000/api/v1/blogs', postData)
-      .subscribe((data) => {
-        console.log(`DATA RECEIVED is : ${data}`);
+    this.postsService
+      .createPost(postData.title, postData.content)
+      .subscribe(() => {
+        this.onFetchPosts();
       });
   }
 
   onFetchPosts() {
     // Send Http request
-    this.fetchProducts();
+    this.isFetching = true;
+    this.postsService.fetchPosts().subscribe(
+      (posts) => {
+        this.isFetching = false;
+        this.loadedPosts = posts;
+      },
+      (error) => {
+        this.error = error.message;
+      }
+    );
   }
 
   onClearPosts() {
     // Send Http request
-  }
-
-  private fetchProducts() {
-    this.http
-      .get('http://localhost:3000/api/v1/blogs')
-      .pipe(
-        map((responseData: any) => {
-          const blogsPosts = responseData.blogs;
-          const resultPosts = [];
-          blogsPosts.forEach((post) => {
-            delete post._id;
-            delete post.__v;
-            resultPosts.push(post);
-          });
-          return resultPosts;
-        })
-      )
-      .subscribe((posts: any) => {
-        console.log(posts);
-      });
+    this.postsService.deletePosts().subscribe(() => {
+      this.loadedPosts = [];
+    });
   }
 }
