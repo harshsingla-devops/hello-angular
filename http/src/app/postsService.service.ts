@@ -1,6 +1,11 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpEventType,
+  HttpHeaders,
+  HttpParams,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Post } from './models/post.model';
 import { environment } from '../environments/environment';
 
@@ -10,7 +15,9 @@ export class PostsService {
 
   public createPost(title: string, content: string) {
     const postData = { title: title, content: content };
-    return this.http.post(environment.API_END_POINT, postData);
+    return this.http.post(environment.API_END_POINT, postData, {
+      observe: 'response',
+    });
   }
 
   public fetchPosts() {
@@ -34,6 +41,17 @@ export class PostsService {
   }
 
   public deletePosts() {
-    return this.http.delete(environment.API_END_POINT);
+    return this.http
+      .delete(environment.API_END_POINT, {
+        observe: 'events',
+      })
+      .pipe(
+        tap((event) => {
+          if (event.type === HttpEventType.Sent)
+            console.log('Request has been sent to the server!');
+          if (event.type === HttpEventType.Response)
+            console.log('Response has been received from the server');
+        })
+      );
   }
 }
