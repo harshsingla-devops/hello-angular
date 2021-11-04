@@ -21,12 +21,26 @@ export class HomeComponent implements OnInit, OnDestroy {
       setInterval(() => {
         observer.next(c);
         c++;
+        if (c > 3) {
+          observer.error(new Error('An Error Occured in Observable!'));
+        }
+        if (c === 2) {
+          observer.complete();
+        }
       }, 1000);
     });
 
-    this.customObservableSubscription = customObservable.subscribe((data) => {
-      console.log(data);
-    });
+    this.customObservableSubscription = customObservable.subscribe(
+      (data) => {
+        console.log(data);
+      },
+      (error) => {
+        console.log(error);
+      },
+      () => {
+        console.log('Completed!');
+      }
+    );
   }
   ngOnDestroy() {
     this.obsSubscription.unsubscribe();
