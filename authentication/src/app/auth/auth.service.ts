@@ -1,7 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { User } from './user.model';
 
 export interface AuthResponse {
   idToken: string;
@@ -15,34 +16,65 @@ export interface AuthResponse {
   providedIn: 'root',
 })
 export class AuthService {
+  user = new Subject<User>();
   constructor(private http: HttpClient) {}
 
   signUp(email: string, password: string) {
     return this.http
       .post<AuthResponse>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]',
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAdfIGdYX66nAncp1ADsW_6pZ_p_1eS82o',
         {
           email: email,
           password: password,
           returnSecureToken: true,
         }
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError(this.handleError),
+        tap((resData) => {
+          this.handleAuthentication(
+            resData.email,
+            resData.localId,
+            resData.idToken,
+            +resData.expiresIn
+          );
+        })
+      );
   }
 
   login(email: string, password: string) {
     return this.http
       .post<AuthResponse>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY]',
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAdfIGdYX66nAncp1ADsW_6pZ_p_1eS82o',
         {
           email: email,
           password: password,
           returnSecureToken: true,
         }
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError(this.handleError),
+        tap((resData) => {
+          this.handleAuthentication(
+            resData.email,
+            resData.localId,
+            resData.idToken,
+            +resData.expiresIn
+          );
+        })
+      );
   }
 
+  private handleAuthentication(
+    email: string,
+    id: string,
+    token: string,
+    expiration: number
+  ) {
+    const expirationDate = new Date(new Date().getTime() + expiration * 1000);
+    const user = new User(email, id, token, expirationDate);
+    this.user.next(user);
+  }
   private handleError(errorResponse: HttpErrorResponse) {
     let errorMessage = 'An unknown Error Occured!';
     if (!errorResponse.error || !errorResponse.error.error)
