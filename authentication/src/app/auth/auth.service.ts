@@ -19,6 +19,7 @@ export interface AuthResponse {
 export class AuthService {
   // user = new Subject<User>();
   user = new BehaviorSubject<User>(null);
+  tokenExpirationTimer: any;
   constructor(private http: HttpClient, private router: Router) {}
 
   signUp(email: string, password: string) {
@@ -70,8 +71,43 @@ export class AuthService {
   logOut() {
     this.user.next(null);
     this.router.navigate(['/auth']);
+    localStorage.removeItem('savedUser');
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+    }
+    this.tokenExpirationTimer = null;
   }
 
+  autoLogout(expirationDuration: number) {
+    this.tokenExpirationTimer = setTimeout(() => {
+      this.logOut();
+    }, 2000);
+  }
+  autoLogin() {
+    const savedUser: {
+      email: string;
+      idToken: string;
+      _token: string;
+      _tokenExpirationDate: string;
+    } = JSON.parse(localStorage.getItem('savedUser'));
+    if (!savedUser) {
+      return;
+    }
+    const loadedUser = new User(
+      savedUser.email,
+      savedUser.idToken,
+      savedUser._token,
+      new Date(savedUser._tokenExpirationDate)
+    );
+
+    if (loadedUser.token) {
+      this.user.next(loadedUser);
+      const e =
+        new Date(savedUser._tokenExpirationDate).getTime() -
+        new Date().getTime();
+      this.autoLogout(e);
+    }
+  }
   private handleAuthentication(
     email: string,
     id: string,
@@ -81,6 +117,8 @@ export class AuthService {
     const expirationDate = new Date(new Date().getTime() + expiration * 1000);
     const user = new User(email, id, token, expirationDate);
     this.user.next(user);
+    this.autoLogout(expiration * 1000);
+    localStorage.setItem('savedUser', JSON.stringify(user));
   }
   private handleError(errorResponse: HttpErrorResponse) {
     let errorMessage = 'An unknown Error Occured!';

@@ -15,6 +15,7 @@ export class AuthInterceptorService implements HttpInterceptor {
     return this.authService.user.pipe(
       take(1),
       exhaustMap((userData) => {
+        console.log(userData);
         if (!userData) return next.handle(req);
         const modifiedReq = req.clone({
           params: new HttpParams().set('auth', userData.token),
